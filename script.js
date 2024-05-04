@@ -15,26 +15,26 @@ var playerTwoCounter = 0;
 var playerOneAngle = 0;
 var playerOneAngularVelocity = 0.02;
 var playerTwoAngle = 0;
-var playerTwoAngularVelocity = 0.02; 
+var playerTwoAngularVelocity = 0.02;
 
 var playerOneClockwise = true;
 var playerTwoClockwise = true;
 
 var playerOneShooting = false;
 var playerTwoShooting = false;
-var shootVelocity = 8; 
-
-var randomDots = [];
 
 var showPlayerOneFog = false;
 var showPlayerTwoFog = false;
 
-var PlayerOnePowerupUsed = false;
-var PlayerTwoPowerupUsed = false;
+var playerOnePowerupUsed = false;
+var playerTwoPowerupUsed = false;
+
+var shootVelocity = 8;
+var randomDots = [];
 
 function generateRandomDots() {
-    var minDistance = 70; 
-    for (var i = 0; i < 20; i++) {
+    var minDistance = 70;
+    for (var i = 0; i < 14; i++) {
         var dotX, dotY;
         var validPosition = false;
         while (!validPosition) {
@@ -57,7 +57,7 @@ function generateRandomDots() {
             }
         }
 
-        let score = Math.floor(Math.random() * 5) + 1; 
+        let score = Math.floor(Math.random() * 5) + 1;
         let radius = 0;
         switch (score) {
             case 1:
@@ -84,19 +84,19 @@ function drawRandomDots() {
     randomDots.forEach(function (dot) {
         switch (dot.score) {
             case 10:
-                drawDot(dot.x, dot.y, dot.radius, "#4f0321");
+                drawDot(dot.x, dot.y, dot.radius, "#c183de");
                 break;
             case 20:
-                drawDot(dot.x, dot.y, dot.radius, "#632e7f");
+                drawDot(dot.x, dot.y, dot.radius, "#af9ad6");
                 break;
             case 30:
-                drawDot(dot.x, dot.y, dot.radius, "#260387");
+                drawDot(dot.x, dot.y, dot.radius, "#609ee2");
                 break;
             case 40:
-                drawDot(dot.x, dot.y, dot.radius, "#ba6403");
+                drawDot(dot.x, dot.y, dot.radius, "#d2c8e5");
                 break;
             case 50:
-                drawDot(dot.x, dot.y, dot.radius, "#038771");
+                drawDot(dot.x, dot.y, dot.radius, "#61b3a5");
                 break;
         }
     });
@@ -105,11 +105,11 @@ function drawRandomDots() {
 function drawDot(x, y, size, color) {
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 3; 
-    ctx.stroke(); 
+    ctx.strokeStyle = "#392b46";
+    ctx.lineWidth = 3;
+    ctx.stroke();
     ctx.fillStyle = color;
-    ctx.fill(); 
+    ctx.fill();
     ctx.closePath();
 }
 
@@ -122,27 +122,37 @@ function checkCollision(ballX, ballY) {
         var dy = ballY - dot.y;
         var distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < dot.radius + 20) {
-            return i; 
+            return i;
         }
     }
-    return -1; 
+    return -1;
 }
 
 var lineY = canvas.height / 2;
-var lineDirection = 1; 
-var lineHeight = 200; 
+var lineDirection = 1;
+var lineHeight = 200;
+
 function drawMovingLine() {
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, lineY - lineHeight / 2 - 1);
+    ctx.lineTo(canvas.width / 2, lineY + lineHeight / 2 + 1);
+    ctx.strokeStyle = "#392b46";
+    ctx.lineWidth = 14;
+    ctx.stroke();
+    ctx.closePath();
+
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, lineY - lineHeight / 2);
     ctx.lineTo(canvas.width / 2, lineY + lineHeight / 2);
-    ctx.strokeStyle = "#000"; 
-    ctx.lineWidth = 10; 
+    ctx.strokeStyle = "#9257b2";
+    ctx.lineWidth = 12;
     ctx.stroke();
     ctx.closePath();
 }
 
+
 function updateMovingLine() {
-    lineY += lineDirection; 
+    lineY += lineDirection;
 
     if (lineY - lineHeight / 2 <= 0) {
         lineDirection = 1;
@@ -151,6 +161,40 @@ function updateMovingLine() {
     }
 }
 
+function drawRestartButton() {
+    ctx.fillStyle = "#302c2c";
+    ctx.fillRect(canvas.width / 2 - 100, canvas.height / 2 + 50, 200, 50);
+    ctx.fillStyle = "#FFF";
+    ctx.font = "30px Arial";
+    ctx.fillText("Restart", canvas.width / 2 - 48, canvas.height / 2 + 85);
+}
+
+function drawScore() {
+    ctx.strokeStyle = "#363c54"; 
+    ctx.font = "bold 50px Arial";
+    ctx.lineWidth = 2.5;
+
+    ctx.strokeText(playerOneCounter, 30, 60);
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText(playerOneCounter, 30, 60);
+
+    ctx.strokeStyle = "#453654"; 
+    ctx.lineWidth = 2.5;
+
+    if (playerTwoCounter <= 9) {
+        ctx.strokeText(playerTwoCounter, canvas.width - 60, 60);
+        ctx.fillStyle = "#f29bd2";
+        ctx.fillText(playerTwoCounter, canvas.width - 60, 60);
+    } else if (playerTwoCounter <= 99) {
+        ctx.strokeText(playerTwoCounter, canvas.width - 80, 60);
+        ctx.fillStyle = "#f29bd2";
+        ctx.fillText(playerTwoCounter, canvas.width - 80, 60);
+    } else {
+        ctx.strokeText(playerTwoCounter, canvas.width - 110, 60);
+        ctx.fillStyle = "#f29bd2";
+        ctx.fillText(playerTwoCounter, canvas.width - 110, 60);
+    }
+}
 
 function checkWin() {
     if (playerOneCounter >= 600 || playerTwoCounter >= 600) {
@@ -159,45 +203,26 @@ function checkWin() {
         if (playerOneCounter >= 600) {
             winner = "Player One";
             textColor = "#0095DD";
+            ctx.strokeStyle = "#444b6a";
         } else {
             winner = "Player Two";
-            textColor = "#FF0000"; 
+            textColor = "#f29bd2";
+            ctx.strokeStyle = "#59456e";
         }
 
-        ctx.fillStyle = textColor;
-        ctx.font = "bold 50px Arial";
+        ctx.lineWidth = 2.7;
+        ctx.strokeText(winner + " wins!", canvas.width / 2 - 200, canvas.height / 2);
+        ctx.fillStyle = textColor; 
         ctx.fillText(winner + " wins!", canvas.width / 2 - 200, canvas.height / 2);
 
-        cancelAnimationFrame(animationFrame); 
+        drawRestartButton();
+        cancelAnimationFrame(animationFrame);
     }
 }
 
-function fogPlayerOne() {
-    ctx.beginPath();
-    ctx.arc(0, canvas.height / 2, 600, 0, Math.PI * 2);
-    ctx.strokeStyle = "#525050"; 
-    ctx.lineWidth = 2; 
-    ctx.stroke(); 
-    ctx.fillStyle = "#525050"; 
-    ctx.fill();
-    ctx.closePath();
-}
-
-function fogPlayerTwo() {
-
-    ctx.beginPath();
-    ctx.arc(canvas.width, canvas.height / 2, 600, 0, Math.PI * 2);
-    ctx.strokeStyle = "#525050";
-    ctx.lineWidth = 2; 
-    ctx.stroke(); 
-    ctx.fillStyle = "#525050";
-    ctx.fill(); 
-    ctx.closePath();
-}
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     checkWin();
 
     if (randomDots.length === 0) {
@@ -207,42 +232,40 @@ function draw() {
     var playerOneBallX = playerOneX + playerOneRadius * Math.cos(playerOneAngle);
     var playerOneBallY = playerOneY + playerOneRadius * Math.sin(playerOneAngle);
 
-    ctx.beginPath();
-    ctx.moveTo(playerOneX - 10, playerOneY);
-    ctx.lineTo(playerOneBallX, playerOneBallY + 5);
-    ctx.strokeStyle = "#0095DD";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.closePath();
+    if (!showPlayerOneFog) {
+        ctx.beginPath();
+        ctx.moveTo(playerOneX - 10, playerOneY);
+        ctx.lineTo(playerOneBallX, playerOneBallY + 5);
+        ctx.strokeStyle = "#0095DD";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.moveTo(playerOneX - 10, playerOneY);
-    ctx.lineTo(playerOneBallX, playerOneBallY - 5);
-    ctx.strokeStyle = "#0095DD"; 
-    ctx.lineWidth = 3; 
-    ctx.stroke();
-    ctx.closePath();
+        ctx.beginPath();
+        ctx.moveTo(playerOneX - 10, playerOneY);
+        ctx.lineTo(playerOneBallX, playerOneBallY - 5);
+        ctx.strokeStyle = "#0095DD";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.arc(playerOneBallX, playerOneBallY, 20, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
+        ctx.beginPath();
+        ctx.arc(playerOneBallX, playerOneBallY, 20, 0, Math.PI * 2);
+        ctx.strokeStyle = "#392b46";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.arc(playerOneBallX, playerOneBallY, 10, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000"; 
-    ctx.lineWidth = 1; 
-    ctx.stroke(); 
-    ctx.fillStyle = "#525050"; 
-    ctx.fill(); 
-    ctx.closePath();
-
-    if (showPlayerOneFog) {
-        fogPlayerOne();
+        ctx.beginPath();
+        ctx.arc(playerOneBallX, playerOneBallY, 10, 0, Math.PI * 2);
+        ctx.strokeStyle = "#392b46";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#95cef9";
+        ctx.fill();
+        ctx.closePath();
     }
 
     if (playerOneBallX <= 25) {
@@ -267,7 +290,7 @@ function draw() {
             || playerOneBallY > canvas.height
             || collidedIndex >= 0
             || playerOneBallX >= canvas.width / 2 - 20 && playerOneBallX <= canvas.width / 2 + 20
-            && playerOneBallY >= lineY - lineHeight / 2 && playerOneBallY <= lineY + lineHeight / 2) {
+            && playerOneBallY >= lineY - lineHeight / 2 - 20 && playerOneBallY <= lineY + lineHeight / 2 + 20) {
             playerOneShooting = false;
             if (collidedIndex >= 0) {
                 randomDots[collidedIndex].x = playerOneBallX;
@@ -313,42 +336,40 @@ function draw() {
     var playerTwoBallX = playerTwoX - playerTwoRadius * Math.cos(playerTwoAngle);
     var playerTwoBallY = playerTwoY - playerTwoRadius * Math.sin(playerTwoAngle);
 
-    ctx.beginPath();
-    ctx.moveTo(playerTwoX + 10, playerTwoY);
-    ctx.lineTo(playerTwoBallX, playerTwoBallY - 5);
-    ctx.strokeStyle = "#FF0000"; 
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.closePath();
+    if (!showPlayerTwoFog) {
+        ctx.beginPath();
+        ctx.moveTo(playerTwoX + 10, playerTwoY);
+        ctx.lineTo(playerTwoBallX, playerTwoBallY - 5);
+        ctx.strokeStyle = "#f29bd2";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.moveTo(playerTwoX + 10, playerTwoY);
-    ctx.lineTo(playerTwoBallX, playerTwoBallY + 5);
-    ctx.strokeStyle = "#FF0000"; 
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.closePath();
+        ctx.beginPath();
+        ctx.moveTo(playerTwoX + 10, playerTwoY);
+        ctx.lineTo(playerTwoBallX, playerTwoBallY + 5);
+        ctx.strokeStyle = "#f29bd2";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.arc(playerTwoBallX, playerTwoBallY, 20, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = "#FF0000"; 
-    ctx.fill(); 
-    ctx.closePath();
+        ctx.beginPath();
+        ctx.arc(playerTwoBallX, playerTwoBallY, 20, 0, Math.PI * 2);
+        ctx.strokeStyle = "#392b46";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#f29bd2";
+        ctx.fill();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.arc(playerTwoBallX, playerTwoBallY, 10, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000"; 
-    ctx.lineWidth = 1; 
-    ctx.stroke(); 
-    ctx.fillStyle = "#525050";
-    ctx.fill(); 
-    ctx.closePath();
-
-    if (showPlayerTwoFog) {
-        fogPlayerTwo();
+        ctx.beginPath();
+        ctx.arc(playerTwoBallX, playerTwoBallY, 10, 0, Math.PI * 2);
+        ctx.strokeStyle = "#392b46";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#95cef9";
+        ctx.fill();
+        ctx.closePath();
     }
 
     if (playerTwoBallX >= canvas.width - 25) {
@@ -374,7 +395,7 @@ function draw() {
             || playerTwoBallY > canvas.height
             || collidedIndexP2 >= 0
             || playerTwoBallX >= canvas.width / 2 - 20 && playerTwoBallX <= canvas.width / 2 + 20
-            && playerTwoBallY >= lineY - lineHeight / 2 && playerTwoBallY <= lineY + lineHeight / 2) {
+            && playerTwoBallY >= lineY - lineHeight / 2 - 20 && playerTwoBallY <= lineY + lineHeight / 2 + 20) {
             playerTwoShooting = false;
             if (collidedIndexP2 >= 0) {
                 randomDots[collidedIndexP2].x = playerTwoBallX;
@@ -417,21 +438,12 @@ function draw() {
         }
     }
 
-    ctx.fillStyle = "#0095DD"; 
-    ctx.font = "bold 50px Arial"; 
-    ctx.fillText(playerOneCounter, 30, 60);
-
-    ctx.fillStyle = "#FF0000"; 
-    ctx.font = "bold 50px Arial"; 
-    ctx.fillText(playerTwoCounter, canvas.width - 110, 60);
-
+    drawScore();
     drawRandomDots();
     drawMovingLine();
     updateMovingLine();
     requestAnimationFrame(draw);
 }
-
-draw();
 
 document.addEventListener("keydown", function (event) {
     var playerOneBallX = playerOneX + playerOneRadius * Math.cos(playerOneAngle);
@@ -448,22 +460,36 @@ document.addEventListener("keydown", function (event) {
 });
 
 document.addEventListener("keydown", function (event) {
-    if (event.shiftKey && event.code === "ShiftRight" && !PlayerOnePowerupUsed) {
-        PlayerOnePowerupUsed = true;
+    if (event.shiftKey && event.code === "ShiftRight" && !playerOnePowerupUsed) {
+        playerOnePowerupUsed = true;
         showPlayerOneFog = true;
         setTimeout(function () {
             showPlayerOneFog = false;
-        }, 4000);
+        }, 6000);
     }
 });
 
-
 document.addEventListener("keydown", function (event) {
-    if (event.shiftKey && event.code === "ShiftLeft" && !PlayerTwoPowerupUsed) {
-        PlayerTwoPowerupUsed = true;
+    if (event.shiftKey && event.code === "ShiftLeft" && !playerTwoPowerupUsed) {
+        playerTwoPowerupUsed = true;
         showPlayerTwoFog = true;
         setTimeout(function () {
             showPlayerTwoFog = false;
-        }, 4000);
+        }, 6000);
     }
 });
+
+canvas.addEventListener("click", function (event) {
+    if (playerOneCounter >= 600 || playerTwoCounter >= 600) {
+        var rect = canvas.getBoundingClientRect();
+        var mouseX = event.clientX - rect.left;
+        var mouseY = event.clientY - rect.top;
+
+        if (mouseX >= canvas.width / 2 - 100 && mouseX <= canvas.width / 2 + 100 &&
+            mouseY >= canvas.height / 2 + 50 && mouseY <= canvas.height / 2 + 100) {
+            location.reload();
+        }
+    }
+});
+
+draw();
